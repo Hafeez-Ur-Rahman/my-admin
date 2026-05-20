@@ -37,10 +37,10 @@ const ProfileModal = ({ isOpen, onClose, user }) => {
                     {/* Profile Body - More Compact */}
                     <div className="px-8 pb-8 -mt-10 relative text-center">
                         <div className="w-20 h-20 rounded-3xl bg-card border-4 border-background flex items-center justify-center text-3xl text-accent-pink font-luxury font-bold shadow-2xl mx-auto mb-3">
-                            {user.fullName.charAt(0).toUpperCase()}
+                            {(user.fullName || user.name || "U").charAt(0).toUpperCase()}
                         </div>
                         
-                        <h2 className="text-xl font-luxury text-white italic">{user.fullName}</h2>
+                        <h2 className="text-xl font-luxury text-white italic">{user.fullName || user.name || "Unknown User"}</h2>
                         <span className={`inline-block px-3 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest mt-1 ${
                             user.role === 'admin' 
                             ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' 

@@ -17,7 +17,7 @@ const Coupons = () => {
     code: '',
     discountType: 'percentage',
     value: 10,
-    expiryDate: '2026-04-30',
+    expiryDate: '2026-12-31',
     minOrderAmount: 5000,
     isActive: true
   });
@@ -64,7 +64,7 @@ const Coupons = () => {
           code: '',
           discountType: 'percentage',
           value: 10,
-          expiryDate: '2026-04-30',
+          expiryDate: '2026-12-31',
           minOrderAmount: 5000,
           isActive: true
         });
@@ -184,9 +184,6 @@ const Coupons = () => {
                         <i className="ri-coupon-3-fill text-2xl text-accent-pink"></i>
                     </div>
                     <div className="flex gap-2">
-                        <button onClick={() => handleToggleModal('update', coupon)} className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:bg-accent-purple/20 transition-all group/icon">
-                            <i className="ri-edit-2-line group-hover/icon:scale-110 transition-transform"></i>
-                        </button>
                         <button onClick={() => handleDeleteClick(coupon._id)} className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:bg-rose-500/20 transition-all group/icon">
                             <i className="ri-delete-bin-7-line group-hover/icon:scale-110 transition-transform"></i>
                         </button>

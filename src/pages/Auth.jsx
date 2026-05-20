@@ -1,14 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { loginUser, registerUser } from '../services/api';
+import LogoImage from '../assests/Capture.PNG';
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isRegisterOnly = localStorage.getItem('registerNewAdmin') === 'true' || new URLSearchParams(location.search).get('register') === 'true';
+
+  const [isLogin, setIsLogin] = useState(() => {
+    return !isRegisterOnly;
+  });
+
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.removeItem('registerNewAdmin');
+  }, []);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -86,9 +97,13 @@ const Auth = () => {
           window.dispatchEvent(new Event('auth-change'));
           navigate('/');
         } else {
-          setIsLogin(true);
-          setStep(1);
-          setError('Account created! Please login now.');
+          if (isRegisterOnly) {
+            navigate('/auth');
+          } else {
+            setIsLogin(true);
+            setStep(1);
+            setError('Account created! Please login now.');
+          }
         }
       }
     } else {
@@ -110,8 +125,8 @@ const Auth = () => {
       >
         {/* Logo/Title */}
         <div className="text-center mb-10">
-          <div className="w-20 h-20 bg-gradient-to-tr from-accent-purple to-accent-pink rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-[0_0_30px_rgba(244,63,94,0.3)]">
-            <i className="ri-shield-user-line text-4xl text-white"></i>
+          <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center shadow-[0_0_30px_rgba(192,38,211,0.2)] bg-black border border-white/10 overflow-hidden group">
+            <img src={LogoImage} alt="Escentrum Logo" className="w-full h-full object-cover scale-[1.45] transition-transform duration-700 group-hover:scale-[1.55]" />
           </div>
           <h1 className="text-3xl font-black text-white tracking-tighter mb-2">
             {isLogin ? 'Welcome Back' : 'Join the Elite'}
@@ -284,21 +299,25 @@ const Auth = () => {
           </button>
         </form>
 
-        <div className="mt-8 text-center">
-          <p className="text-text-muted text-xs font-medium">
-            {isLogin ? "Don't have an account?" : "Already a member?"}
-            <button
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setStep(1);
-                setError('');
-              }}
-              className="ml-2 text-accent-pink font-bold hover:underline"
-            >
-              {isLogin ? 'Join the Elite' : 'Back to Vault'}
-            </button>
-          </p>
-        </div>
+        {!isLogin && (
+          <div className="mt-8 text-center">
+            <p className="text-text-muted text-xs font-medium">
+              Already a member?
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLogin(true);
+                  setStep(1);
+                  setError('');
+                  navigate('/auth');
+                }}
+                className="ml-2 text-accent-pink font-bold hover:underline"
+              >
+                Back to Vault
+              </button>
+            </p>
+          </div>
+        )}
       </motion.div>
 
       {/* Decorative Corner Element */}

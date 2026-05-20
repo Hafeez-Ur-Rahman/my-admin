@@ -8,8 +8,8 @@ const Settings = () => {
 
   // Form States
   const [generalSettings, setGeneralSettings] = useState({
-    shopName: 'LUXORA Perfumes',
-    contactEmail: 'admin@luxora.com',
+    shopName: 'Escentrum Perfumes',
+    contactEmail: 'admin@escentrum.com',
     phoneNumber: '+1 (555) 000-1234',
     address: '123 Luxury Ave, Beverly Hills, CA',
     currency: 'USD',
@@ -142,7 +142,7 @@ const Settings = () => {
                 <label className="text-[11px] uppercase tracking-widest text-text-muted font-bold">Full Name</label>
                 <input
                   type="text"
-                  defaultValue="Admin Luxora"
+                  defaultValue="Admin Escentrum"
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-accentGold/50 focus:outline-none transition-all duration-300"
                 />
               </div>
@@ -150,7 +150,7 @@ const Settings = () => {
                 <label className="text-[11px] uppercase tracking-widest text-text-muted font-bold">Username</label>
                 <input
                   type="text"
-                  defaultValue="admin_luxora"
+                  defaultValue="admin_escentrum"
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-accentGold/50 focus:outline-none transition-all duration-300"
                 />
               </div>

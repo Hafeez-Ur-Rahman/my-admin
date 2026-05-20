@@ -15,7 +15,8 @@ import Auth from './pages/Auth';
 import Sales from './pages/Sales';
 import Customers from './pages/Customers';
 import Settings from './pages/Settings';
-import { Inventory } from './pages/Placeholders';
+import Inventory from './pages/Inventory';
+import Reviews from './pages/Reviews';
 
 // Page Transition Component for Luxury Feel
 const PageWrapper = ({ children }) => (
@@ -36,6 +37,13 @@ function AppContent() {
   const location = useLocation();
 
   useEffect(() => {
+    if (!sessionStorage.getItem('isSessionActive')) {
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      sessionStorage.setItem('isSessionActive', 'true');
+      setIsAuthenticated(false);
+    }
+
     const handleAuthChange = () => {
       setIsAuthenticated(!!localStorage.getItem('adminToken'));
     };
@@ -46,6 +54,15 @@ function AppContent() {
       window.removeEventListener('storage', handleAuthChange);
     };
   }, []);
+
+  useEffect(() => {
+    const scrollContainer = document.getElementById('main-scroll-container');
+    if (scrollContainer) {
+      scrollContainer.scrollTo(0, 0);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname]);
 
   if (!isAuthenticated) {
     return (
@@ -68,7 +85,7 @@ function AppContent() {
         className={`flex-1 flex flex-col min-w-0 h-full overflow-hidden transition-all duration-500 ease-in-out ${isCollapsed ? 'lg:pl-[80px]' : 'lg:pl-[260px]'}`}
       >
         <Navbar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
-        <div className="flex-1 overflow-y-auto overflow-x-hidden px-[14px] lg:px-8 pb-10 pt-4 custom-scrollbar relative z-10">
+        <div id="main-scroll-container" className="flex-1 overflow-y-auto overflow-x-hidden px-[14px] lg:px-8 pb-10 pt-4 custom-scrollbar relative z-10">
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
               <Route path="/" element={<PageWrapper><Dashboard /></PageWrapper>} />
@@ -78,6 +95,7 @@ function AppContent() {
               <Route path="/reports" element={<PageWrapper><Reports /></PageWrapper>} />
               <Route path="/sales" element={<PageWrapper><Sales /></PageWrapper>} />
               <Route path="/customers" element={<PageWrapper><Customers /></PageWrapper>} />
+              <Route path="/reviews" element={<PageWrapper><Reviews /></PageWrapper>} />
               <Route path="/inventory" element={<PageWrapper><Inventory /></PageWrapper>} />
               <Route path="/analytics" element={<PageWrapper><Analytics /></PageWrapper>} />
               <Route path="/coupons" element={<PageWrapper><Coupons /></PageWrapper>} />

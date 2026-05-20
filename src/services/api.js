@@ -1,10 +1,14 @@
-const BASE_URL = 'https://perfume-project-production-b650.up.railway.app/api/';
+const BASE_URL = 'https://perfumeapis.brainexworld.com/api/';
 
 export const API_ENDPOINTS = {
     orders: `${BASE_URL}Order/getAllOrders`,
-    users: `${BASE_URL}User/getAllusers`,
+    users: `${BASE_URL}User/getAllUsers`,
     products: `${BASE_URL}Product/getAllProducts`,
     bestSelling: `${BASE_URL}Product/best-selling`,
+    newArrivals: `${BASE_URL}Product/new-arrivals`,
+    createProduct: `${BASE_URL}Product/createProduct`,
+    updateProduct: `${BASE_URL}Product/updateProduct/`, // Append ID
+    deleteProduct: `${BASE_URL}Product/deleteProduct/`, // Append ID
     // Category Endpoints
     getCategories: `${BASE_URL}Category/getAllCategories`,
     createCategory: `${BASE_URL}Category/createCategory`,
@@ -33,6 +37,17 @@ export const API_ENDPOINTS = {
     deleteCoupon: `${BASE_URL}Coupon/delete/`, // Append ID
     // User Endpoints
     deleteUser: `${BASE_URL}User/delete/`, // Append ID
+    // Inventory Endpoints
+    getInventory: `${BASE_URL}Inventory/getinventory`,
+    lowProducts: `${BASE_URL}Inventory/low-products`,
+    lowVariants: `${BASE_URL}Inventory/low-variants`,
+    outOfStock: `${BASE_URL}Inventory/out-of-stock`,
+    allInventory: `${BASE_URL}Inventory/all`,
+    // Slider Endpoints
+    getSliders: `${BASE_URL}Slider/get`,
+    createSlider: `${BASE_URL}Slider/create`,
+    updateSlider: `${BASE_URL}Slider/update/`, // Append ID
+    deleteSlider: `${BASE_URL}Slider/delete/`, // Append ID
 };
 
 const getHeaders = () => {
@@ -50,7 +65,20 @@ export const loginUser = async (credentials) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(credentials)
         });
-        return await response.json();
+
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            return await response.json();
+        } else {
+            const text = await response.text();
+            console.error(`Non-JSON response from ${API_ENDPOINTS.login}:`, text.substring(0, 300));
+            return {
+                success: false,
+                message: response.status === 404
+                    ? "Login endpoint not found. Please check if the URL is correct."
+                    : "Server returned an invalid response (HTML)."
+            };
+        }
     } catch (error) {
         console.error("Login error:", error);
         return { success: false, message: "Network error" };
@@ -64,7 +92,20 @@ export const registerUser = async (userData) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData)
         });
-        return await response.json();
+
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            return await response.json();
+        } else {
+            const text = await response.text();
+            console.error(`Non-JSON response from ${API_ENDPOINTS.register}:`, text.substring(0, 300));
+            return {
+                success: false,
+                message: response.status === 404
+                    ? "Registration endpoint not found."
+                    : "Server returned an invalid response (HTML)."
+            };
+        }
     } catch (error) {
         console.error("Registration error:", error);
         return { success: false, message: "Network error" };
@@ -163,7 +204,7 @@ export const updateCategory = async (id, categoryData) => {
             headers: getHeaders(),
             body: JSON.stringify(categoryData)
         });
-        
+
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             return { success: false, message: errorData.message || `Error: ${response.status}` };
@@ -205,7 +246,7 @@ export const updateOrderStatus = async (id, status) => {
             headers: getHeaders(),
             body: JSON.stringify({ status })
         });
-        
+
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.indexOf("application/json") !== -1) {
             return await response.json();
@@ -259,12 +300,12 @@ export const deleteSale = async (id) => {
     try {
         const url = `${API_ENDPOINTS.deleteSale}${id}`;
         console.log("FINAL ATTEMPT - Full URL:", url);
-        
+
         const response = await fetch(url, {
             method: 'DELETE',
             headers: getHeaders()
         });
-        
+
         console.log("Response from server:", response.status);
         if (response.ok) return { success: true };
         return { success: false };
@@ -379,13 +420,13 @@ export const updateCoupon = async (id, couponData) => {
             headers: getHeaders(),
             body: JSON.stringify(couponData)
         });
-        
+
         if (!response.ok) {
             const errorText = await response.text();
             console.error("Update failed:", errorText);
             return { success: false, message: `Error ${response.status}: ${errorText}` };
         }
-        
+
         return await response.json();
     } catch (error) {
         console.error("Error updating coupon:", error);
@@ -427,7 +468,7 @@ export const deleteUser = async (id) => {
             method: 'DELETE',
             headers: getHeaders()
         });
-        
+
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             return { success: false, message: errorData.message || `Error: ${response.status}` };
@@ -439,3 +480,281 @@ export const deleteUser = async (id) => {
         return { success: false, message: "Network error" };
     }
 };
+
+// --- Product Management APIs ---
+
+export const fetchProducts = async () => {
+    try {
+        const response = await fetch(API_ENDPOINTS.products, { headers: getHeaders() });
+        const res = await response.json();
+        return Array.isArray(res) ? res : (res.data || []);
+    } catch (error) {
+        console.error("Error fetching products:", error);
+        return [];
+    }
+};
+
+export const fetchNewArrivals = async () => {
+    try {
+        const response = await fetch(API_ENDPOINTS.newArrivals, { headers: getHeaders() });
+        const res = await response.json();
+        return Array.isArray(res) ? res : (res.data || []);
+    } catch (error) {
+        console.error("Error fetching new arrivals:", error);
+        return [];
+    }
+};
+
+export const createProduct = async (formData) => {
+    try {
+        const token = localStorage.getItem('adminToken');
+        const headers = {
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            // Note: Content-Type is omitted so browser sets it automatically with the boundary for FormData
+        };
+        const response = await fetch(API_ENDPOINTS.createProduct, {
+            method: 'POST',
+            headers,
+            body: formData
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error creating product:", error);
+        return { success: false, message: "Network error" };
+    }
+};
+
+export const deleteProduct = async (id) => {
+    try {
+        const url = `${API_ENDPOINTS.deleteProduct}${id}`;
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: getHeaders()
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            return { success: false, message: errorData.message || `Error: ${response.status}` };
+        }
+
+        return await response.json().catch(() => ({ success: true, message: "Deleted successfully" }));
+    } catch (error) {
+        console.error("Error deleting product:", error);
+        return { success: false, message: "Network error" };
+    }
+};
+
+export const updateProduct = async (id, formData) => {
+    try {
+        const token = localStorage.getItem('adminToken');
+        const headers = {
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            // Note: Content-Type is omitted so browser sets it automatically with the boundary for FormData
+        };
+        const response = await fetch(`${API_ENDPOINTS.updateProduct}${id}`, {
+            method: 'PUT',
+            headers,
+            body: formData
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error updating product:", error);
+        return { success: false, message: "Network error" };
+    }
+};
+
+export const fetchInventoryDashboard = async () => {
+    try {
+        const response = await fetch(API_ENDPOINTS.getInventory, { headers: getHeaders() });
+        const res = await response.json();
+        return res.data || null;
+    } catch (error) {
+        console.error("Error fetching inventory dashboard:", error);
+        return null;
+    }
+};
+
+export const fetchLowProducts = async () => {
+    try {
+        const response = await fetch(API_ENDPOINTS.lowProducts, { headers: getHeaders() });
+        const res = await response.json();
+        return res.data || res || [];
+    } catch (error) {
+        console.error("Error fetching low products:", error);
+        return [];
+    }
+};
+
+export const fetchLowVariants = async () => {
+    try {
+        const response = await fetch(API_ENDPOINTS.lowVariants, { headers: getHeaders() });
+        const res = await response.json();
+        return res.data || res || [];
+    } catch (error) {
+        console.error("Error fetching low variants:", error);
+        return [];
+    }
+};
+
+export const fetchOutOfStock = async () => {
+    try {
+        const response = await fetch(API_ENDPOINTS.outOfStock, { headers: getHeaders() });
+        const res = await response.json();
+        return res.data || res || [];
+    } catch (error) {
+        console.error("Error fetching out of stock:", error);
+        return [];
+    }
+};
+
+export const fetchFullInventory = async () => {
+    try {
+        const response = await fetch(API_ENDPOINTS.allInventory, { headers: getHeaders() });
+        const res = await response.json();
+        return res.data || res || [];
+    } catch (error) {
+        console.error("Error fetching full inventory:", error);
+        return [];
+    }
+};
+
+// --- Slider Management APIs ---
+
+export const fetchSliders = async () => {
+    try {
+        const response = await fetch(API_ENDPOINTS.getSliders, { headers: getHeaders() });
+        const res = await response.json();
+        return res.data || [];
+    } catch (error) {
+        console.error("Error fetching sliders:", error);
+        return [];
+    }
+};
+
+export const createSlider = async (formData) => {
+    try {
+        const token = localStorage.getItem('adminToken');
+        const headers = {
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        };
+        const response = await fetch(API_ENDPOINTS.createSlider, {
+            method: 'POST',
+            headers,
+            body: formData
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error creating slider:", error);
+        return { success: false, message: "Network error" };
+    }
+};
+
+export const updateSlider = async (id, formData) => {
+    try {
+        const token = localStorage.getItem('adminToken');
+        const headers = {
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        };
+        const response = await fetch(`${API_ENDPOINTS.updateSlider}${id}`, {
+            method: 'PUT',
+            headers,
+            body: formData
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error updating slider:", error);
+        return { success: false, message: "Network error" };
+    }
+};
+
+export const deleteSlider = async (id) => {
+    try {
+        const url = `${API_ENDPOINTS.deleteSlider}${id}`;
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: getHeaders()
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            return { success: false, message: errorData.message || `Error: ${response.status}` };
+        }
+
+        return await response.json().catch(() => ({ success: true, message: "Deleted successfully" }));
+    } catch (error) {
+        console.error("Error deleting slider:", error);
+        return { success: false, message: "Network error" };
+    }
+};
+
+// --- Review APIs ---
+
+export const fetchAllReviews = async () => {
+    try {
+        // Try getting all reviews directly first
+        const response = await fetch(`${BASE_URL}Review/getAllReviews`, { headers: getHeaders() });
+        if (response.ok) {
+            const res = await response.json();
+            if (res.data) return res.data;
+        }
+    } catch (e) {
+        console.log("No getAllReviews endpoint, falling back to product iteration");
+    }
+
+    // Fallback: get all products and their reviews
+    try {
+        const products = await fetchProducts();
+        if (!products || !products.length) return [];
+        
+        const reviewPromises = products.map(async (product) => {
+            const prodId = product._id || product.id;
+            if (!prodId) return [];
+            try {
+                const res = await fetch(`${BASE_URL}Review/getReviews/${prodId}`, { headers: getHeaders() });
+                if (res.ok) {
+                    const data = await res.json();
+                    const reviews = data.data || (Array.isArray(data) ? data : []);
+                    // Attach product info so we can display it in the review list
+                    return Array.isArray(reviews) ? reviews.map(r => ({ ...r, product })) : [];
+                }
+                return [];
+            } catch (err) {
+                return [];
+            }
+        });
+        
+        const reviewsArrays = await Promise.all(reviewPromises);
+        let allReviews = [];
+        reviewsArrays.forEach(arr => {
+            if (Array.isArray(arr)) {
+                allReviews = allReviews.concat(arr);
+            }
+        });
+        
+        // Sort by newest first
+        return allReviews.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    } catch (error) {
+        console.error("Error fetching all reviews via fallback:", error);
+        return [];
+    }
+};
+
+export const deleteReview = async (id) => {
+    try {
+        const response = await fetch(`${BASE_URL}Review/deleteReview/${id}`, {
+            method: 'DELETE',
+            headers: getHeaders()
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            return { success: false, message: errorData.message || `Error: ${response.status}` };
+        }
+
+        return await response.json().catch(() => ({ success: true, message: "Deleted successfully" }));
+    } catch (error) {
+        console.error("Error deleting review:", error);
+        return { success: false, message: "Network error" };
+    }
+};
+

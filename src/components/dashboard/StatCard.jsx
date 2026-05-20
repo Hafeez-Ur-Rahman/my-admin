@@ -8,7 +8,7 @@ const StatCard = ({ title, value, icon, trend, trendValue, color }) => {
   useEffect(() => {
     // Subtle Icon Glow Breathing
     gsap.to(iconBoxRef.current, {
-      boxShadow: '0 0 20px rgba(244,114,182,0.1)',
+      boxShadow: '0 0 20px rgba(212,175,55,0.1)',
       duration: 3,
       repeat: -1,
       yoyo: true,
@@ -18,11 +18,11 @@ const StatCard = ({ title, value, icon, trend, trendValue, color }) => {
 
   const getColorTheme = (colorName) => {
     switch (colorName) {
-      case 'gold': return { text: 'text-[#fbbf24]', bg: 'bg-[#fbbf24]/5', border: 'border-[#fbbf24]/20', glow: 'bg-[#fbbf24]' };
-      case 'cyan': return { text: 'text-[#2dd4bf]', bg: 'bg-[#2dd4bf]/5', border: 'border-[#2dd4bf]/20', glow: 'bg-[#2dd4bf]' };
-      case 'pink': return { text: 'text-[#f472b6]', bg: 'bg-[#f472b6]/5', border: 'border-[#f472b6]/20', glow: 'bg-[#f472b6]' };
-      case 'purple': return { text: 'text-[#A855F7]', bg: 'bg-[#A855F7]/5', border: 'border-[#A855F7]/20', glow: 'bg-[#A855F7]' };
-      case 'magenta': return { text: 'text-[#ec4899]', bg: 'bg-[#ec4899]/5', border: 'border-[#ec4899]/20', glow: 'bg-[#ec4899]' };
+      case 'gold': return { text: 'text-[#D4AF37]', bg: 'bg-[#D4AF37]/5', border: 'border-[#D4AF37]/20', glow: 'bg-[#D4AF37]' };
+      case 'cyan': return { text: 'text-[#f9d053]', bg: 'bg-[#f9d053]/5', border: 'border-[#f9d053]/20', glow: 'bg-[#f9d053]' };
+      case 'pink': return { text: 'text-[#dbb758]', bg: 'bg-[#dbb758]/5', border: 'border-[#dbb758]/20', glow: 'bg-[#dbb758]' };
+      case 'purple': return { text: 'text-[#F5D76E]', bg: 'bg-[#F5D76E]/5', border: 'border-[#F5D76E]/20', glow: 'bg-[#F5D76E]' };
+      case 'magenta': return { text: 'text-[#D4AF37]', bg: 'bg-[#D4AF37]/5', border: 'border-[#D4AF37]/20', glow: 'bg-[#D4AF37]' };
       default: return { text: 'text-white', bg: 'bg-white/5', border: 'border-white/20', glow: 'bg-white' };
     }
   };
@@ -48,7 +48,7 @@ const StatCard = ({ title, value, icon, trend, trendValue, color }) => {
         {/* Pink Circle Icon Container */}
         <div 
           ref={iconBoxRef}
-          className="w-14 h-14 rounded-full bg-rose-500/20 border border-rose-500/30 flex-shrink-0 flex items-center justify-center shadow-[0_0_30px_rgba(244,114,182,0.15)] group-hover/stat:scale-105 transition-transform duration-700 relative"
+          className="w-14 h-14 rounded-full bg-rose-500/20 border border-rose-500/30 flex-shrink-0 flex items-center justify-center shadow-[0_0_30px_rgba(212,175,55,0.15)] group-hover/stat:scale-105 transition-transform duration-700 relative"
         >
           <div className="absolute inset-0 rounded-full bg-rose-500/20 animate-ping opacity-20"></div>
           <i className={`${icon} text-xl ${theme.text} drop-shadow-[0_0_10px_currentColor] relative z-10`}></i>

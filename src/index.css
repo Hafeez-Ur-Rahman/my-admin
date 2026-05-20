@@ -5,13 +5,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
 
 :root {
-  --background: #0d0b14;
-  --sidebar: #130f1e;
-  --card: #1a1625;
-  --accent-purple: #a855f7;
-  --accent-pink: #ec4899;
-  --accent-gold: #c5a358;
-  --text-muted: #94a3b8;
+  --background: #0D0D0D;
+  --sidebar: #0D0D0D;
+  --card: #1A1A1A;
+  --accent-purple: #D4AF37;
+  --accent-pink: #D4AF37;
+  --accent-gold: #D4AF37;
+  --text-muted: #BDBDBD;
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
@@ -32,7 +32,8 @@ body {
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -45,19 +46,19 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-purple);
+  background: var(--accent-gold);
 }
 
 /* Glassmorphism Classes */
 .glass {
-  background: rgba(26, 22, 37, 0.6);
+  background: rgba(26, 26, 26, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .glass-navbar {
-  background: rgba(13, 11, 20, 0.8);
+  background: rgba(13, 13, 13, 0.8);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -75,17 +76,17 @@ body {
 }
 
 .glow-purple {
-  box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
 }
 
 .active-sidebar-item {
-  background: linear-gradient(90deg, rgba(168, 85, 247, 0.2) 0%, rgba(168, 85, 247, 0) 100%);
-  border-left: 4px solid var(--accent-purple);
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0) 100%);
+  border-left: 4px solid var(--accent-gold);
   color: white !important;
 }
 
 .active-sidebar-item i {
-  color: var(--accent-purple);
+  color: var(--accent-gold);
 }
 
 .font-luxury {
@@ -132,7 +133,8 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 5px;
+  width: 3px;
+  height: 3px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
@@ -145,7 +147,51 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus, 
 input:-webkit-autofill:active{
-    -webkit-box-shadow: 0 0 0 30px #1a1625 inset !important;
+    -webkit-box-shadow: 0 0 0 30px #1a1a1a inset !important;
     -webkit-text-fill-color: white !important;
     transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Color Palette Overrides for Gradients and Accents */
+.from-\[\#4d003e\] {
+  --tw-gradient-from: #916b15 var(--tw-gradient-to-position) !important;
+  --tw-gradient-to: rgba(145, 107, 21, 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+.to-\[\#c026d3\] {
+  --tw-gradient-to: #D4AF37 var(--tw-gradient-to-position) !important;
+}
+.text-\[\#f472b6\] {
+  color: #dbb758 !important;
+}
+.group-hover\:text-\[\#ff71ce\]:hover,
+.group-hover\:text-\[\#ff71ce\] {
+  color: #F5D76E !important;
+}
+.text-accent-pink {
+  color: #D4AF37 !important;
+}
+.bg-accent-pink {
+  background-color: #D4AF37 !important;
+}
+.border-accent-pink {
+  border-color: #D4AF37 !important;
+}
+.focus-within\:text-accent-pink:focus-within {
+  color: #D4AF37 !important;
+}
+.focus\:border-accent-pink\/30:focus {
+  border-color: rgba(212, 175, 55, 0.3) !important;
+}
+.focus\:ring-accent-pink\/5:focus {
+  --tw-ring-color: rgba(212, 175, 55, 0.05) !important;
+}
+.text-accent-purple {
+  color: #D4AF37 !important;
+}
+.bg-accent-purple {
+  background-color: #D4AF37 !important;
+}
+.border-accent-purple {
+  border-color: #D4AF37 !important;
 }

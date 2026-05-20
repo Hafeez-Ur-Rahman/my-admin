@@ -200,7 +200,7 @@ const Reports = () => {
             </div>
           </div>
           <div className="h-[380px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <AreaChart data={revenueData}>
                 <defs><linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#f43f5e" stopOpacity={0.4}/><stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/></linearGradient></defs>
                 <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.03)" vertical={false} />
@@ -241,7 +241,7 @@ const Reports = () => {
            <div className="relative z-10">
               <h3 className="text-3xl font-black text-white italic mb-10">Sector Performance</h3>
               <div className="h-[300px]">
-                 <ResponsiveContainer width="100%" height="100%">
+                 <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                     <BarChart data={revenueData.slice(-6)}>
                        <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.03)" vertical={false} />
                        <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10, fontWeight: '900'}} />

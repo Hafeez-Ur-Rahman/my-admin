@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom';
 import gsap from 'gsap';
 import { motion, AnimatePresence } from 'framer-motion';
 import 'remixicon/fonts/remixicon.css';
+import LogoImage from '../../assests/Capture.PNG';
 
 const menuItems = [
   { name: 'Dashboard', icon: 'ri-home-4-line', path: '/' },
@@ -13,9 +14,11 @@ const menuItems = [
   { name: 'Orders', icon: 'ri-shopping-cart-2-line', path: '/orders' },
   { name: 'Sales', icon: 'ri-percent-line', path: '/sales' },
   { name: 'Customers', icon: 'ri-group-line', path: '/customers' },
+  { name: 'Reviews', icon: 'ri-star-line', path: '/reviews' },
   { name: 'Inventory', icon: 'ri-archive-line', path: '/inventory' },
   { name: 'Coupons', icon: 'ri-coupon-line', path: '/coupons' },
   { name: 'Reports', icon: 'ri-bar-chart-box-line', path: '/reports' },
+  { name: 'Sliders', icon: 'ri-slideshow-3-line', path: '/slider' },
   { name: 'Settings', icon: 'ri-settings-4-line', path: '/settings' },
 ];
 
@@ -39,16 +42,16 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
   const handleLogoHover = (isEnter) => {
     if (isEnter) {
       gsap.to(brandTextRef.current, {
-        scale: 1.1,
-        letterSpacing: '0.15em',
-        color: '#fff',
-        textShadow: '0 0 15px rgba(225, 152, 152, 0.5)',
+        scale: 1.05,
+        letterSpacing: '0.12em',
+        color: '#fde08b',
+        textShadow: '0 0 15px rgba(212, 175, 55, 0.5)',
         duration: 0.6,
         ease: 'expo.out'
       });
       gsap.to(perfumesTextRef.current, {
         opacity: 1,
-        letterSpacing: '0.8em',
+        letterSpacing: '0.4em',
         y: 2,
         duration: 0.8,
         ease: 'expo.out'
@@ -56,15 +59,15 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     } else {
       gsap.to(brandTextRef.current, {
         scale: 1,
-        letterSpacing: '0.1em',
-        color: '#f9a8d4', // rose-300
-        textShadow: '0 0 0px rgba(225, 152, 152, 0)',
+        letterSpacing: '0.08em',
+        color: '#d4af37',
+        textShadow: '0 0 0px rgba(212, 175, 55, 0)',
         duration: 0.6,
         ease: 'expo.out'
       });
       gsap.to(perfumesTextRef.current, {
         opacity: 0.6,
-        letterSpacing: '0.6em',
+        letterSpacing: '0.3em',
         y: 0,
         duration: 0.6,
         ease: 'expo.out'
@@ -113,6 +116,12 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     });
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    window.dispatchEvent(new Event('auth-change'));
+  };
+
   useEffect(() => {
     const handleResize = () => {
       const isMobile = window.innerWidth < 1024;
@@ -155,13 +164,19 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
         >
           <div className="w-[70px] flex items-center justify-center flex-shrink-0 relative z-10">
             <div className="relative group/logo">
-              {/* Flower Emblem with Piëch Animation */}
-              <div className="relative w-10 h-10 flex items-center justify-center transition-all duration-700 group-hover/logo:rotate-[360deg]">
-                <div className="absolute inset-0 bg-accentGold/0 rounded-full group-hover/logo:bg-accentGold/10 blur-xl transition-all duration-700"></div>
-                <i className="ri-vip-crown-line text-accentGold text-3xl relative z-10 drop-shadow-[0_0_15px_rgba(212,175,55,0.4)] transition-all duration-700 group-hover/logo:scale-110"></i>
+              {/* Logo Emblem */}
+              <div className="relative w-[50px] h-[50px] flex items-center justify-center transition-all duration-700 group-hover/logo:scale-105">
+                <div className="absolute inset-0 bg-accentGold/0 rounded-full group-hover/logo:bg-accentGold/20 blur-xl transition-all duration-700"></div>
+                <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-accentGold/20 relative z-10 transition-all duration-700 group-hover/logo:border-accentGold/50 shadow-[0_0_15px_rgba(212,175,55,0.15)] flex items-center justify-center bg-black">
+                  <img 
+                    src={LogoImage} 
+                    alt="Escentrum Logo" 
+                    className="w-full h-full object-cover scale-[1.45]"
+                  />
+                </div>
 
                 {/* Decorative orbital ring */}
-                <div className="absolute inset-0 border border-accentGold/10 rounded-full scale-125 group-hover/logo:border-accentGold/40 group-hover/logo:scale-100 transition-all duration-1000"></div>
+                <div className="absolute inset-0 border border-accentGold/20 rounded-full scale-[1.15] group-hover/logo:border-accentGold/40 group-hover/logo:scale-100 transition-all duration-1000"></div>
               </div>
             </div>
           </div>
@@ -176,9 +191,9 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
               >
                 <span
                   ref={brandTextRef}
-                  className="text-[22px] font-serif tracking-[0.1em] bg-gradient-to-r from-[#4d003e] to-[#c026d3] bg-clip-text text-transparent whitespace-nowrap leading-none italic"
+                  className="text-[22px] font-serif tracking-[0.08em] text-[#d4af37] whitespace-nowrap leading-none italic font-bold"
                 >
-                  LUXORA
+                  Escentrum
                 </span>
                 <span
                   ref={perfumesTextRef}
@@ -251,6 +266,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
           <div className="pt-4 mt-4 border-t border-white/5 relative mx-2">
             <button
               ref={logoutRef}
+              onClick={handleLogout}
               onMouseEnter={() => handleLogoutHover(true)}
               onMouseLeave={() => handleLogoutHover(false)}
               className="w-full flex items-center h-12 rounded-2xl text-danger/70 hover:text-danger transition-all duration-300 group overflow-hidden relative active:scale-95"

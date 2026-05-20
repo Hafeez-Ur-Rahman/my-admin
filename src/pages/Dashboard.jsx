@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import StatCard from '../components/dashboard/StatCard';
 import { SalesAreaChart, CategoryPieChart } from '../components/charts/MainCharts';
 import gsap from 'gsap';
-import { fetchDashboardData } from '../services/api';
+import { fetchDashboardData, fetchInventoryDashboard } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
@@ -55,17 +55,26 @@ const Dashboard = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const data = await fetchDashboardData();
-      if (data) {
-        const chartData = processChartData(data.allOrders);
-        const { categoryData } = calculateExtendedStats(data.allOrders);
-        setStats({
-          ...data,
-          chartData,
-          categoryData,
-          loading: false
-        });
-      } else {
+      try {
+        const [data, invData] = await Promise.all([
+          fetchDashboardData(),
+          fetchInventoryDashboard()
+        ]);
+        if (data) {
+          const chartData = processChartData(data.allOrders);
+          const { categoryData } = calculateExtendedStats(data.allOrders);
+          setStats({
+            ...data,
+            chartData,
+            categoryData,
+            inventoryAlerts: invData,
+            loading: false
+          });
+        } else {
+          setStats(prev => ({ ...prev, loading: false }));
+        }
+      } catch (error) {
+        console.error("Error loading dashboard data:", error);
         setStats(prev => ({ ...prev, loading: false }));
       }
     };
@@ -99,11 +108,14 @@ const Dashboard = () => {
 
   // Run stagger animation only after data has loaded
   useEffect(() => {
-    if (!stats.loading) {
-      gsap.fromTo('.stagger-card',
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power3.out' }
-      );
+    if (!stats.loading && containerRef.current) {
+      const cards = containerRef.current.querySelectorAll('.stagger-card');
+      if (cards.length > 0) {
+        gsap.fromTo(cards,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power3.out' }
+        );
+      }
     }
   }, [stats.loading]);
 
@@ -161,6 +173,30 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Refined Scent Vault Alerts Banner */}
+      {!stats.loading && stats.inventoryAlerts && (stats.inventoryAlerts.lowProductStock > 0 || stats.inventoryAlerts.outOfStock > 0) && (
+        <div 
+          onClick={() => navigate('/inventory')}
+          className="stagger-card relative overflow-hidden bg-gradient-to-r from-amber-500/10 to-rose-500/10 hover:from-amber-500/15 hover:to-rose-500/15 transition-all duration-300 border border-amber-500/20 rounded-3xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer shadow-[0_15px_30px_rgba(245,158,11,0.05)] group"
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-[40px] rounded-full"></div>
+          <div className="flex items-center gap-4 relative z-10">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform">
+              <i className="ri-alert-fill text-lg animate-pulse"></i>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white tracking-wide uppercase">Scent Vault Alerts Active</p>
+              <p className="text-[10px] text-white/50 mt-1 font-medium">
+                {stats.inventoryAlerts.lowProductStock} low-stock scent{stats.inventoryAlerts.lowProductStock > 1 ? 's' : ''} and {stats.inventoryAlerts.outOfStock} out-of-stock item{stats.inventoryAlerts.outOfStock > 1 ? 's' : ''} require restocking.
+              </p>
+            </div>
+          </div>
+          <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest flex items-center gap-1 group-hover:text-white transition-colors">
+            Access Vault <i className="ri-arrow-right-s-line text-xs"></i>
+          </span>
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -295,7 +331,7 @@ const Dashboard = () => {
                   const id = order.orderNumber || order.id;
                   const customer = order.userId?.fullName || order.customer;
                   const amount = order.subtotal ? formatCurrency(order.subtotal) : order.amount;
-                  const status = order.status ? order.status.charAt(0).toUpperCase() + order.status.slice(1) : order.status;
+                  const status = (order.status && typeof order.status === 'string') ? order.status.charAt(0).toUpperCase() + order.status.slice(1) : (order.status || 'Unknown');
 
                   return (
                     <tr key={i} className="group/row hover:bg-white/[0.01] transition-colors">
@@ -336,7 +372,7 @@ const Dashboard = () => {
                 { name: 'Gift Sets', value: 8 },
               ];
               const total = displayData.reduce((a, b) => a + b.value, 0) || 1;
-              const colors = ['bg-[#f472b6]', 'bg-[#fbbf24]', 'bg-[#2dd4bf]', 'bg-[#A855F7]'];
+              const colors = ['bg-[#D4AF37]', 'bg-[#f9d053]', 'bg-[#dbb758]', 'bg-[#BDBDBD]'];
 
               return displayData.map((cat, i) => {
                 const percentage = Math.round((cat.value / total) * 100);

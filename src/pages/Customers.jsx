@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { fetchUsers, deleteUser } from '../services/api';
 import StatusModal from '../components/common/StatusModal';
 import ProfileModal from '../components/customers/ProfileModal';
+import { useNavigate } from 'react-router-dom';
 import 'remixicon/fonts/remixicon.css';
 
 const Customers = () => {
@@ -32,6 +33,7 @@ const Customers = () => {
 
     const [selectedUser, setSelectedUser] = useState(null);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const navigate = useNavigate();
 
     const cardsRef = useRef([]);
     const tableRef = useRef(null);
@@ -43,20 +45,30 @@ const Customers = () => {
 
     const loadUsers = async () => {
         setLoading(true);
-        const data = await fetchUsers();
-        setUsers(data);
+        try {
+            const data = await fetchUsers();
+            setUsers(Array.isArray(data) ? data : []);
+        } catch (error) {
+            console.error("Failed to load users:", error);
+            setUsers([]);
+        }
         setLoading(false);
         
         // Animation after loading
         setTimeout(() => {
-            gsap.fromTo(cardsRef.current, 
-                { y: 50, opacity: 0 }, 
-                { y: 0, opacity: 1, stagger: 0.2, duration: 0.8, ease: "power4.out" }
-            );
-            gsap.fromTo(tableRef.current, 
-                { y: 30, opacity: 0 }, 
-                { y: 0, opacity: 1, duration: 1, delay: 0.4, ease: "power3.out" }
-            );
+            const validCards = cardsRef.current.filter(el => el !== null);
+            if (validCards.length > 0) {
+                gsap.fromTo(validCards, 
+                    { y: 50, opacity: 0 }, 
+                    { y: 0, opacity: 1, stagger: 0.1, duration: 0.8, ease: "power4.out" }
+                );
+            }
+            if (tableRef.current) {
+                gsap.fromTo(tableRef.current, 
+                    { y: 30, opacity: 0 }, 
+                    { y: 0, opacity: 1, duration: 1, delay: 0.2, ease: "power3.out" }
+                );
+            }
         }, 100);
     };
 
@@ -194,8 +206,8 @@ const Customers = () => {
                     </p>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 lg:gap-8 w-full xl:w-auto">
-                    <div className="relative group w-full sm:flex-1 xl:flex-none">
+                <div className="flex flex-wrap items-center gap-4 w-full xl:w-auto">
+                    <div className="relative group w-full sm:w-auto">
                         <i className="ri-search-2-line absolute left-4 top-1/2 -translate-y-1/2 text-accent-pink/60 group-focus-within:text-accent-pink transition-all duration-300 text-lg z-10"></i>
                         <input 
                             type="text" 
@@ -228,6 +240,20 @@ const Customers = () => {
                         </select>
                         <i className="ri-arrow-down-s-line absolute right-4 top-1/2 -translate-y-1/2 text-accent-pink pointer-events-none"></i>
                     </div>
+                    <button 
+                        onClick={() => {
+                            localStorage.removeItem('adminToken');
+                            localStorage.removeItem('adminUser');
+                            localStorage.setItem('registerNewAdmin', 'true');
+                            window.dispatchEvent(new Event('auth-change'));
+                            navigate('/auth?register=true');
+                        }}
+                        className="flex-shrink-0 group relative flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-[#4d003e] to-[#c026d3] text-white font-bold rounded-2xl overflow-hidden transition-all duration-700 hover:shadow-[0_0_30px_rgba(192,38,211,0.4)] active:scale-95 shadow-xl w-full sm:w-auto"
+                    >
+                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-700 ease-[0.22,1,0.36,1]"></div>
+                        <i className="ri-shield-star-line text-lg relative z-10"></i>
+                        <span className="relative z-10 tracking-widest uppercase text-[10px] font-bold">New Admin</span>
+                    </button>
                 </div>
             </div>
 
@@ -332,11 +358,11 @@ const Customers = () => {
                                             <td className="px-6 md:px-8 py-4 md:py-6 whitespace-nowrap">
                                                 <div className="flex items-center gap-4">
                                                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-pink/20 to-purpleGlow/20 flex items-center justify-center text-accent-pink font-luxury font-bold border border-white/5 shadow-inner">
-                                                        {user.fullName.charAt(0).toUpperCase()}
+                                                        {(user.fullName || user.name || "U").charAt(0).toUpperCase()}
                                                     </div>
                                                     <div>
-                                                        <div className="text-white font-luxury italic text-lg tracking-wide group-hover:text-accent-pink transition-colors">{user.fullName}</div>
-                                                        <div className="text-[10px] text-text-muted font-medium mt-0.5">ID: {user._id.slice(-8).toUpperCase()}</div>
+                                                        <div className="text-white font-luxury italic text-lg tracking-wide group-hover:text-accent-pink transition-colors">{user.fullName || user.name || "Unknown User"}</div>
+                                                        <div className="text-[10px] text-text-muted font-medium mt-0.5">ID: {(user._id || "").slice(-8).toUpperCase()}</div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -409,6 +435,7 @@ const Customers = () => {
                 onClose={() => setIsProfileOpen(false)}
                 user={selectedUser}
             />
+
         </div>
     );
 };
